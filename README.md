@@ -5,6 +5,9 @@ Sistema de gestão de contratos e cobranças — cadastro de clientes, serviços
 ## Funcionalidades
 
 - **Login** — sistema protegido por autenticação; o primeiro acesso cria a conta de administrador.
+- **Minha conta**: trocar nome, e-mail e senha a qualquer momento.
+- **Recuperação de senha**: sem depender de e-mail — usa uma chave mestra (`RECOVERY_SECRET`) que só quem administra o ambiente possui.
+- **Comprovante de pagamento**: anexar uma imagem ou PDF a cada parcela paga.
 - **Clientes**: cadastro, edição e exclusão, com página própria centralizando todos os serviços.
 - **Clientes master + clientes finais**: um cliente pode ter "clientes finais" vinculados (ex: uma agência que fatura por vários clientes dela) — os serviços ficam organizados por cliente final, mas a cobrança fica centralizada no cliente master.
 - **Serviços**: pagamento único ou parcelado (mês a mês), com geração automática do cronograma de parcelas a partir da data do primeiro pagamento. Serviços sem parcela paga podem ser editados livremente; depois do primeiro pagamento, só a descrição pode ser alterada (evita corromper o histórico).
@@ -42,6 +45,7 @@ Abra [http://localhost:3000](http://localhost:3000) — na primeira vez ele vai 
 |---|---|
 | `DATABASE_URL` | Conexão do banco. Local: `file:./dev.db`. Em produção, veja o aviso abaixo. |
 | `AUTH_SECRET` | Chave usada para assinar os cookies de sessão. Gere com `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`. Obrigatória em produção. |
+| `RECOVERY_SECRET` | Chave mestra para redefinir a senha de qualquer conta em `/recuperar-senha`, sem e-mail. Gere com `node -e "console.log(require('crypto').randomBytes(24).toString('hex'))"`. Guarde como uma senha — quem a tiver pode redefinir o login de qualquer conta. Sem ela configurada, a recuperação fica desativada. |
 
 ## ⚠️ Antes de colocar em produção (ex: Vercel)
 
@@ -66,8 +70,9 @@ Não esqueça também de configurar `AUTH_SECRET` nas variáveis de ambiente da 
 prisma/schema.prisma         Modelo de dados (User, Client, SubClient, Service, Installment)
 src/proxy.ts                 Protege as rotas: redireciona para /login sem sessão válida
 src/app/login/                Tela de login / criação da primeira conta
-src/app/(app)/                Rotas autenticadas: dashboard, clientes, sub-clientes
-src/app/api/                  Busca de clientes, sub-clientes e exportação de dados
+src/app/recuperar-senha/      Redefinição de senha via chave mestra (RECOVERY_SECRET)
+src/app/(app)/                Rotas autenticadas: dashboard, clientes, sub-clientes, minha conta
+src/app/api/                  Busca de clientes, sub-clientes, exportação de dados e comprovantes
 src/components/               Componentes de UI, agrupados por domínio (auth, clients, services, dashboard, layout, ui)
 src/lib/                      Server actions, queries do banco, autenticação, regras de negócio (parcelas, datas, formatação)
 src/hooks/                    Hooks compartilhados no client

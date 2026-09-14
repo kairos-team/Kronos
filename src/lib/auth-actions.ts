@@ -1,10 +1,18 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import { hashPassword, verifyPassword, setSessionCookie, clearSessionCookie } from "@/lib/auth";
+import {
+  hashPassword,
+  verifyPassword,
+  setSessionCookie,
+  clearSessionCookie,
+  requireAuth,
+} from "@/lib/auth";
 
 export type AuthFormState = { error: string } | null;
+export type AccountFormState = { error?: string; success?: string } | null;
 
 export async function createFirstAdmin(
   _prevState: AuthFormState,
@@ -59,4 +67,83 @@ export async function login(
 export async function logout() {
   await clearSessionCookie();
   redirect("/login");
+}
+
+export async function updateAccount(
+  _prevState: AccountFormState,
+  formData: FormData
+): Promise<AccountFormState> {
+  const user = await requireAuth();
+
+  const name = String(formData.get("name") ?? "").trim();
+  const email = String(formData.get("email") ?? "")
+    .trim()
+    .toLowerCase();
+
+  if (!name) return { error: "Nome é obrigatório." };
+  if (!email) return { error: "E-mail é obrigatório." };
+
+  const existing = await prisma.user.findUnique({ where: { email } });
+  if (existing && existing.id !== user.id) {
+    return { error: "Já existe uma conta com esse e-mail." };
+  }
+
+  await prisma.user.update({ where: { id: user.id }, data: { name, email } });
+  revalidatePath("/", "layout");
+
+  return { success: "Dados atualizados com sucesso." };
+}
+
+export async function changePassword(
+  _prevState: AccountFormState,
+  formData: FormData
+): Promise<AccountFormState> {
+  const user = await requireAuth();
+
+  const currentPassword = String(formData.get("currentPassword") ?? "");
+  const newPassword = String(formData.get("newPassword") ?? "");
+  const confirmPassword = String(formData.get("confirmPassword") ?? "");
+
+  if (newPassword.length < 8) return { error: "A nova senha precisa ter pelo menos 8 caracteres." };
+  if (newPassword !== confirmPassword) return { error: "As senhas não coincidem." };
+
+  const fullUser = await prisma.user.findUnique({ where: { id: user.id } });
+  if (!fullUser || !(await verifyPassword(currentPassword, fullUser.passwordHash))) {
+    return { error: "Senha atual incorreta." };
+  }
+
+  const passwordHash = await hashPassword(newPassword);
+  await prisma.user.update({ where: { id: user.id }, data: { passwordHash } });
+
+  return { success: "Senha alterada com sucesso." };
+}
+
+export async function resetPasswordWithRecoveryKey(
+  _prevState: AccountFormState,
+  formData: FormData
+): Promise<AccountFormState> {
+  const recoveryKey = process.env.RECOVERY_SECRET;
+  if (!recoveryKey) {
+    return { error: "Recuperação de senha não está configurada neste ambiente." };
+  }
+
+  const email = String(formData.get("email") ?? "")
+    .trim()
+    .toLowerCase();
+  const providedKey = String(formData.get("recoveryKey") ?? "");
+  const newPassword = String(formData.get("newPassword") ?? "");
+  const confirmPassword = String(formData.get("confirmPassword") ?? "");
+
+  if (!email) return { error: "Informe o e-mail da conta." };
+  if (providedKey !== recoveryKey) return { error: "Chave de recuperação inválida." };
+  if (newPassword.length < 8) return { error: "A nova senha precisa ter pelo menos 8 caracteres." };
+  if (newPassword !== confirmPassword) return { error: "As senhas não coincidem." };
+
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user) return { error: "Nenhuma conta encontrada com esse e-mail." };
+
+  const passwordHash = await hashPassword(newPassword);
+  await prisma.user.update({ where: { id: user.id }, data: { passwordHash } });
+
+  return { success: "Senha redefinida com sucesso. Você já pode fazer login." };
 }

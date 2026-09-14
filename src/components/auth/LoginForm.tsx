@@ -44,6 +44,12 @@ export function LoginForm() {
         />
       </div>
       <SubmitButton className="w-full">Entrar</SubmitButton>
+      <a
+        href="/recuperar-senha"
+        className="block text-center text-sm text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-200"
+      >
+        Esqueci minha senha
+      </a>
     </form>
   );
 }

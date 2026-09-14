@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Download } from "lucide-react";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { Avatar } from "@/components/ui/Avatar";
@@ -13,13 +14,16 @@ export function Header({ user }: { user: { name: string; email: string } }) {
         Exportar dados
       </a>
       <ThemeToggle compact />
-      <div className="flex items-center gap-2.5 pl-3 ml-1 border-l border-stone-200 dark:border-stone-700">
+      <Link
+        href="/conta"
+        className="flex items-center gap-2.5 pl-3 ml-1 border-l border-stone-200 dark:border-stone-700 rounded-r-lg hover:bg-stone-100 dark:hover:bg-stone-800 py-1.5 pr-2 transition-colors"
+      >
         <Avatar name={user.name} size="sm" />
         <div className="hidden lg:block leading-tight">
           <p className="text-sm font-medium text-stone-900 dark:text-stone-100">{user.name}</p>
           <p className="text-xs text-stone-400 dark:text-stone-500">{user.email}</p>
         </div>
-      </div>
+      </Link>
     </header>
   );
 }

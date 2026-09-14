@@ -1,4 +1,5 @@
-import { LogOut, Download } from "lucide-react";
+import Link from "next/link";
+import { LogOut, Download, User } from "lucide-react";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { KronosLogo } from "@/components/layout/KronosLogo";
 import { logout } from "@/lib/auth-actions";
@@ -11,6 +12,13 @@ export function MobileHeader() {
         <span className="font-bold tracking-wide text-stone-900 dark:text-stone-100">KRONOS</span>
       </div>
       <div className="flex items-center gap-1">
+        <Link
+          href="/conta"
+          aria-label="Minha conta"
+          className="flex items-center justify-center h-8 w-8 rounded-lg text-stone-500 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-700 dark:hover:text-stone-200 transition-colors"
+        >
+          <User className="h-4 w-4" />
+        </Link>
         <a
           href="/api/export"
           aria-label="Exportar dados"

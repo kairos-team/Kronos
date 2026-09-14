@@ -62,14 +62,25 @@ model Service {
 }
 
 model Installment {
-  id        String    @id @default(cuid())
-  service   Service   @relation(fields: [serviceId], references: [id], onDelete: Cascade)
-  serviceId String
-  number    Int
-  dueDate   DateTime
-  value     Float
-  paid      Boolean   @default(false)
-  paidAt    DateTime?
+  id              String    @id @default(cuid())
+  service         Service   @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  serviceId       String
+  number          Int
+  dueDate         DateTime
+  value           Float
+  paid            Boolean   @default(false)
+  paidAt          DateTime?
+  receiptFileName String?
+  receiptFileType String?
+  receipt         Receipt?
 
   @@unique([serviceId, number])
+}
+
+model Receipt {
+  id            String      @id @default(cuid())
+  installment   Installment @relation(fields: [installmentId], references: [id], onDelete: Cascade)
+  installmentId String      @unique
+  data          String
+  createdAt     DateTime    @default(now())
 }

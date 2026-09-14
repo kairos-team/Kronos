@@ -253,6 +253,70 @@ export async function toggleInstallmentPaid(
   revalidatePath("/");
 }
 
+const MAX_RECEIPT_BYTES = 3 * 1024 * 1024;
+const ALLOWED_RECEIPT_TYPES = ["image/png", "image/jpeg", "image/webp", "application/pdf"];
+
+export async function attachReceipt(
+  installmentId: string,
+  clientId: string,
+  subClientId: string | undefined,
+  formData: FormData
+) {
+  await requireAuth();
+
+  const file = formData.get("receipt");
+  if (!(file instanceof File) || file.size === 0) {
+    throw new Error("Selecione um arquivo.");
+  }
+  if (file.size > MAX_RECEIPT_BYTES) {
+    throw new Error("Arquivo muito grande (máximo 3MB).");
+  }
+  if (!ALLOWED_RECEIPT_TYPES.includes(file.type)) {
+    throw new Error("Tipo de arquivo não suportado. Envie uma imagem ou PDF.");
+  }
+
+  const buffer = Buffer.from(await file.arrayBuffer());
+  const data = buffer.toString("base64");
+
+  await prisma.$transaction([
+    prisma.receipt.upsert({
+      where: { installmentId },
+      update: { data },
+      create: { installmentId, data },
+    }),
+    prisma.installment.update({
+      where: { id: installmentId },
+      data: { receiptFileName: file.name, receiptFileType: file.type },
+    }),
+  ]);
+
+  revalidatePath(`/clientes/${clientId}`);
+  if (subClientId) {
+    revalidatePath(`/clientes/${clientId}/subclientes/${subClientId}`);
+  }
+}
+
+export async function removeReceipt(
+  installmentId: string,
+  clientId: string,
+  subClientId?: string
+) {
+  await requireAuth();
+
+  await prisma.$transaction([
+    prisma.receipt.deleteMany({ where: { installmentId } }),
+    prisma.installment.update({
+      where: { id: installmentId },
+      data: { receiptFileName: null, receiptFileType: null },
+    }),
+  ]);
+
+  revalidatePath(`/clientes/${clientId}`);
+  if (subClientId) {
+    revalidatePath(`/clientes/${clientId}/subclientes/${subClientId}`);
+  }
+}
+
 function emptyToNull(value: FormDataEntryValue | null): string | null {
   const str = String(value ?? "").trim();
   return str.length > 0 ? str : null;

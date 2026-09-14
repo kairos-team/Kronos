@@ -7,6 +7,7 @@ import { formatCurrency, formatDate } from "@/lib/format";
 import { getInstallmentStatus } from "@/lib/installments";
 import { toggleInstallmentPaid } from "@/lib/actions";
 import { useToast } from "@/components/ui/Toast";
+import { InstallmentReceiptButton } from "@/components/services/InstallmentReceiptButton";
 
 export function InstallmentTimelineItem({
   installment,
@@ -15,7 +16,14 @@ export function InstallmentTimelineItem({
   subClientId,
   isLast,
 }: {
-  installment: { id: string; number: number; dueDate: Date; value: number; paid: boolean };
+  installment: {
+    id: string;
+    number: number;
+    dueDate: Date;
+    value: number;
+    paid: boolean;
+    receiptFileName?: string | null;
+  };
   installmentsCount: number;
   clientId: string;
   subClientId?: string;
@@ -77,22 +85,30 @@ export function InstallmentTimelineItem({
             Vencimento {formatDate(installment.dueDate)}
           </p>
         </div>
-        <div className="text-right shrink-0">
-          <p className="text-sm font-semibold text-stone-900 dark:text-stone-100 tabular-nums">
-            {formatCurrency(installment.value)}
-          </p>
-          <p
-            className={clsx(
-              "text-xs font-medium mt-0.5",
-              installment.paid
-                ? "text-green-600 dark:text-green-400"
-                : isOverdue
-                  ? "text-red-600 dark:text-red-400"
-                  : "text-stone-400 dark:text-stone-500"
-            )}
-          >
-            {installment.paid ? "Pago" : isOverdue ? "Atrasado" : "Pendente"}
-          </p>
+        <div className="flex items-center gap-1.5 shrink-0">
+          <div className="text-right">
+            <p className="text-sm font-semibold text-stone-900 dark:text-stone-100 tabular-nums">
+              {formatCurrency(installment.value)}
+            </p>
+            <p
+              className={clsx(
+                "text-xs font-medium mt-0.5",
+                installment.paid
+                  ? "text-green-600 dark:text-green-400"
+                  : isOverdue
+                    ? "text-red-600 dark:text-red-400"
+                    : "text-stone-400 dark:text-stone-500"
+              )}
+            >
+              {installment.paid ? "Pago" : isOverdue ? "Atrasado" : "Pendente"}
+            </p>
+          </div>
+          <InstallmentReceiptButton
+            installmentId={installment.id}
+            clientId={clientId}
+            subClientId={subClientId}
+            fileName={installment.receiptFileName ?? null}
+          />
         </div>
       </div>
     </div>
