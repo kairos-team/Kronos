@@ -47,6 +47,9 @@ next-env.d.ts
 /dev.db
 /prisma/dev.db
 
+# local screenshots used for debugging, not project content
+/img/
+
 # Prisma CLI AI-agent skill docs (auto-installed by `prisma init`, not project content)
 /.agents/skills/
 /.claude/skills/
