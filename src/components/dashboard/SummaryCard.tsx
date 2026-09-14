@@ -19,11 +19,13 @@ export function SummaryCard({
 }) {
   return (
     <Card className="p-5">
-      <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-stone-500 dark:text-stone-400">{label}</span>
+      <div className="flex items-start justify-between gap-2">
+        <span className="text-sm font-medium text-stone-500 dark:text-stone-400 leading-snug">
+          {label}
+        </span>
         <div
           className={clsx(
-            "h-9 w-9 rounded-xl flex items-center justify-center",
+            "h-9 w-9 shrink-0 rounded-xl flex items-center justify-center",
             accent === "emerald"
               ? "bg-orange-50 dark:bg-orange-950/40 text-orange-700 dark:text-orange-400"
               : "bg-stone-100 dark:bg-stone-700 text-stone-500 dark:text-stone-400"
