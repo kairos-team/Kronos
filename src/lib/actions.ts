@@ -50,6 +50,15 @@ export async function createSubClient(masterClientId: string, formData: FormData
   redirect(`/clientes/${masterClientId}/subclientes/${subClient.id}`);
 }
 
+export async function deleteSubClient(subClientId: string, masterClientId: string) {
+  await requireAuth();
+  await prisma.subClient.delete({ where: { id: subClientId } });
+
+  revalidatePath(`/clientes/${masterClientId}`);
+  revalidatePath("/clientes");
+  revalidatePath("/");
+}
+
 export async function updateClient(clientId: string, formData: FormData) {
   await requireAuth();
   const name = String(formData.get("name") ?? "").trim();

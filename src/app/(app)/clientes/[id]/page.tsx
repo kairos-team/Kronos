@@ -58,7 +58,7 @@ export default async function ClientDetailPage({
       </Link>
 
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-        <div className="flex items-start gap-4">
+        <div className="flex items-center gap-4">
           <Avatar name={client.name} size="lg" />
           <div>
             <h1 className="text-2xl font-semibold text-stone-900 dark:text-stone-100">

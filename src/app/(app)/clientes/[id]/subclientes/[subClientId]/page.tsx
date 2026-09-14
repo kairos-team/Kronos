@@ -5,6 +5,7 @@ import { getSubClientDetail } from "@/lib/queries";
 import { Card } from "@/components/ui/Card";
 import { Avatar } from "@/components/ui/Avatar";
 import { NewServiceModal } from "@/components/services/NewServiceModal";
+import { DeleteSubClientButton } from "@/components/clients/DeleteSubClientButton";
 import { ServicesSection } from "@/components/services/ServicesSection";
 import { formatCurrency } from "@/lib/format";
 
@@ -36,7 +37,7 @@ export default async function SubClientDetailPage({
       </Link>
 
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-        <div className="flex items-start gap-4">
+        <div className="flex items-center gap-4">
           <Avatar name={subClient.name} size="lg" />
           <div>
             <h1 className="text-2xl font-semibold text-stone-900 dark:text-stone-100">
@@ -47,10 +48,19 @@ export default async function SubClientDetailPage({
             </p>
           </div>
         </div>
-        <NewServiceModal
-          clientId={subClient.clientId}
-          fixedSubClient={{ id: subClient.id, name: subClient.name }}
-        />
+        <div className="flex gap-2">
+          <DeleteSubClientButton
+            subClientId={subClient.id}
+            subClientName={subClient.name}
+            masterClientId={subClient.clientId}
+            masterClientName={subClient.client.name}
+            servicesCount={subClient.services.length}
+          />
+          <NewServiceModal
+            clientId={subClient.clientId}
+            fixedSubClient={{ id: subClient.id, name: subClient.name }}
+          />
+        </div>
       </div>
 
       <div className="grid grid-cols-3 gap-4">
