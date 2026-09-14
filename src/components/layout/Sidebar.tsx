@@ -18,7 +18,7 @@ export function Sidebar() {
   return (
     <aside className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 border-r border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900">
       <div className="flex items-center justify-center gap-2.5 px-6 h-16 border-b border-stone-100 dark:border-stone-800">
-        <KronosLogo className="h-7 w-7 shrink-0 stroke-orange-700 dark:stroke-orange-400" />
+        <KronosLogo className="h-7 w-7 shrink-0 text-orange-700 dark:text-orange-400" />
         <span className="text-lg font-bold tracking-wide text-stone-900 dark:text-stone-100">
           KRONOS
         </span>

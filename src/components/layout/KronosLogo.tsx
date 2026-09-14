@@ -3,6 +3,7 @@ export function KronosLogo({ className }: { className?: string }) {
     <svg
       viewBox="0 0 24 24"
       fill="none"
+      stroke="currentColor"
       strokeWidth="2"
       strokeLinecap="round"
       className={className}
