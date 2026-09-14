@@ -52,7 +52,7 @@ next-env.d.ts
 
 # Prisma CLI AI-agent skill docs (auto-installed by `prisma init`, not project content)
 /.agents/skills/
-/.claude/skills/
+/.claude/
 /.windsurf/skills/
 /skills-lock.json
 

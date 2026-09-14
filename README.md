@@ -22,7 +22,7 @@ Sistema de gestão de contratos e cobranças — cadastro de clientes, serviços
 
 - [Next.js 16](https://nextjs.org) (App Router) + [React 19](https://react.dev) + TypeScript
 - [Tailwind CSS 4](https://tailwindcss.com)
-- [Prisma 7](https://www.prisma.io) com SQLite via `@prisma/adapter-libsql` (fácil de migrar para um banco hospedado depois)
+- [Prisma 7](https://www.prisma.io) com PostgreSQL via `@prisma/adapter-pg` (banco: [Neon](https://neon.tech), conectado via Vercel Storage)
 - [date-fns](https://date-fns.org) para cálculo de datas/parcelas
 - Autenticação própria (sem dependência externa): senha com hash `scrypt`, sessão em cookie assinado com HMAC/Web Crypto, validada num `proxy.ts` (o antigo `middleware.ts`)
 
@@ -32,8 +32,9 @@ Pré-requisitos: Node.js 20+.
 
 ```bash
 npm install
-cp .env.example .env      # e gere um AUTH_SECRET (veja o comando dentro do arquivo)
-npx prisma migrate dev    # cria o banco SQLite local (dev.db) e aplica as migrations
+npx vercel env pull .env.local --environment=development   # DATABASE_URL do Neon (dev)
+cp .env.example .env      # e gere AUTH_SECRET/RECOVERY_SECRET (veja os comandos dentro do arquivo)
+npx prisma migrate dev    # aplica as migrations no Postgres
 npm run dev
 ```
 
@@ -43,17 +44,15 @@ Abra [http://localhost:3000](http://localhost:3000) — na primeira vez ele vai 
 
 | Variável | Descrição |
 |---|---|
-| `DATABASE_URL` | Conexão do banco. Local: `file:./dev.db`. Em produção, veja o aviso abaixo. |
+| `DATABASE_URL` | Conexão com o Postgres (Neon). Gerada automaticamente pela Vercel ao conectar o Storage do projeto; use `vercel env pull` para trazer para local. |
 | `AUTH_SECRET` | Chave usada para assinar os cookies de sessão. Gere com `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`. Obrigatória em produção. |
 | `RECOVERY_SECRET` | Chave mestra para redefinir a senha de qualquer conta em `/recuperar-senha`, sem e-mail. Gere com `node -e "console.log(require('crypto').randomBytes(24).toString('hex'))"`. Guarde como uma senha — quem a tiver pode redefinir o login de qualquer conta. Sem ela configurada, a recuperação fica desativada. |
 
-## ⚠️ Antes de colocar em produção (ex: Vercel)
+## Banco de dados em produção
 
-O banco hoje é um **arquivo SQLite local** (`dev.db`). Isso funciona bem localmente, mas **não funciona em produção na Vercel** — o sistema de arquivos lá é somente leitura (fora de `/tmp`, que é apagado a cada execução), então os dados não seriam salvos de verdade.
+O banco é um **Postgres hospedado (Neon)**, conectado ao projeto pela aba "Storage" da Vercel — a `DATABASE_URL` (e as demais variáveis `POSTGRES_*`/`PG*`) são geradas e mantidas automaticamente por essa integração, não precisam ser configuradas manualmente.
 
-Antes do deploy, troque o banco por um SQLite hospedado — como o [Turso](https://turso.tech) — que é compatível com o driver `@prisma/adapter-libsql` já usado no projeto, exigindo só a troca da `DATABASE_URL` (e um token de autenticação) nas variáveis de ambiente da Vercel. Não é preciso trocar nenhum código.
-
-Não esqueça também de configurar `AUTH_SECRET` nas variáveis de ambiente da Vercel — sem ela, o login não funciona em produção.
+`AUTH_SECRET` e `RECOVERY_SECRET` continuam manuais — sem `AUTH_SECRET`, o login não funciona em produção.
 
 ## Scripts
 
