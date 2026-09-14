@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/Card";
 import { ServiceProgressBar } from "@/components/services/ServiceProgressBar";
 import { InstallmentTimelineItem } from "@/components/services/InstallmentTimelineItem";
 import { DeleteServiceButton } from "@/components/services/DeleteServiceButton";
+import { EditServiceModal } from "@/components/services/EditServiceModal";
 import { formatCurrency, formatDate } from "@/lib/format";
 import type { ServiceWithDetails } from "@/lib/queries";
 
@@ -73,6 +74,7 @@ function ServiceCard({
           <p className="text-lg font-semibold text-stone-900 dark:text-stone-100 tabular-nums">
             {formatCurrency(service.totalValue)}
           </p>
+          <EditServiceModal service={service} clientId={clientId} />
           <DeleteServiceButton
             serviceId={service.id}
             clientId={clientId}

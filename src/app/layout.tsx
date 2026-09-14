@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { Sidebar } from "@/components/layout/Sidebar";
-import { MobileNav } from "@/components/layout/MobileNav";
-import { MobileHeader } from "@/components/layout/MobileHeader";
 import { ToastProvider } from "@/components/ui/Toast";
 
 const geistSans = Geist({
@@ -31,16 +28,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full bg-stone-100 text-stone-900 dark:bg-stone-900 dark:text-stone-100 transition-colors">
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
-        <ToastProvider>
-          <Sidebar />
-          <MobileHeader />
-          <main className="md:pl-64 pb-20 md:pb-0">
-            <div className="mx-auto max-w-5xl px-4 py-6 md:px-8 md:py-10">
-              {children}
-            </div>
-          </main>
-          <MobileNav />
-        </ToastProvider>
+        <ToastProvider>{children}</ToastProvider>
       </body>
     </html>
   );

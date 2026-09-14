@@ -2,17 +2,19 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Users } from "lucide-react";
+import { LayoutDashboard, Users, Download, LogOut } from "lucide-react";
 import clsx from "clsx";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { KronosLogo } from "@/components/layout/KronosLogo";
+import { Avatar } from "@/components/ui/Avatar";
+import { logout } from "@/lib/auth-actions";
 
 const links = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/clientes", label: "Clientes", icon: Users },
 ];
 
-export function Sidebar() {
+export function Sidebar({ user }: { user: { name: string; email: string } }) {
   const pathname = usePathname();
 
   return (
@@ -43,8 +45,33 @@ export function Sidebar() {
           );
         })}
       </nav>
-      <div className="px-3 py-4 border-t border-stone-100 dark:border-stone-800">
+      <div className="px-3 py-3 border-t border-stone-100 dark:border-stone-800 space-y-1">
+        <div className="flex items-center gap-2.5 px-2 py-2 mb-1">
+          <Avatar name={user.name} size="sm" />
+          <div className="min-w-0">
+            <p className="text-sm font-medium text-stone-900 dark:text-stone-100 truncate">
+              {user.name}
+            </p>
+            <p className="text-xs text-stone-400 dark:text-stone-500 truncate">{user.email}</p>
+          </div>
+        </div>
+        <a
+          href="/api/export"
+          className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-900 dark:hover:text-stone-100 transition-colors"
+        >
+          <Download className="h-[18px] w-[18px]" />
+          Exportar dados
+        </a>
         <ThemeToggle />
+        <form action={logout}>
+          <button
+            type="submit"
+            className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium w-full text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-900 dark:hover:text-stone-100 transition-colors"
+          >
+            <LogOut className="h-[18px] w-[18px]" />
+            Sair
+          </button>
+        </form>
       </div>
     </aside>
   );
