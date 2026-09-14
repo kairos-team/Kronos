@@ -1,0 +1,67 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum PaymentType {
+  UNICO
+  PARCELADO
+}
+
+model Client {
+  id         String      @id @default(cuid())
+  name       String
+  email      String?
+  phone      String?
+  document   String?
+  notes      String?
+  createdAt  DateTime    @default(now())
+  services   Service[]
+  subClients SubClient[]
+}
+
+model SubClient {
+  id        String    @id @default(cuid())
+  client    Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientId  String
+  name      String
+  createdAt DateTime  @default(now())
+  services  Service[]
+
+  @@unique([clientId, name])
+}
+
+model Service {
+  id                String        @id @default(cuid())
+  client            Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientId          String
+  subClient         SubClient?    @relation(fields: [subClientId], references: [id], onDelete: SetNull)
+  subClientId       String?
+  description       String
+  totalValue         Float
+  paymentType       PaymentType
+  installmentsCount Int           @default(1)
+  firstPaymentDate  DateTime
+  createdAt         DateTime      @default(now())
+  installments      Installment[]
+}
+
+model Installment {
+  id        String    @id @default(cuid())
+  service   Service   @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  serviceId String
+  number    Int
+  dueDate   DateTime
+  value     Float
+  paid      Boolean   @default(false)
+  paidAt    DateTime?
+
+  @@unique([serviceId, number])
+}
